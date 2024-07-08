@@ -3,7 +3,7 @@
 *A More Fair and Comprehensive Comparision between KAN and MLP*
 
 TL;DR - For Function Representing, use KAN; for Computer Vision, Machine Learning, Text Processing, and Audio Processing Tasks, use MLP.
-
+![How to Choose between MLP and KAN.](assert/tldr.png)
 ## Contents
 - [Install](#install)
 - [Run](#run)
