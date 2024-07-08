@@ -1,0 +1,11 @@
+command*/
+dataset*/
+logs*/
+bin*/
+spawn*/
+
+*.pkl
+*.pyc__pycache__/
+*.pyc
+config.yml
+*checkpoint*

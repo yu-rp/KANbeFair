@@ -1,0 +1,20 @@
+name: kanbefair
+channels:
+  - defaults
+dependencies:
+  - python=3.9.7
+  - pip:
+      - matplotlib==3.6.2
+      - numpy==1.24.4
+      - scikit_learn==1.1.3
+      - setuptools==65.5.0
+      - sympy==1.11.1
+      - torch==2.2.2
+      - torchvision==0.17.2
+      - tqdm==4.66.2
+      - fvcore
+      - pandas==2.2.2
+      - ucimlrepo==0.0.7
+      - torchaudio==2.2.2
+      - torchtext==0.17.2
+      - torchdata==0.7.1 # installed for torchtext
