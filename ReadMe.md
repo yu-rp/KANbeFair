@@ -2,6 +2,8 @@
 
 *A More Fair and Comprehensive Comparision between KAN and MLP*
 
+<!-- [![Paper]()] -->
+
 TL;DR - For Symbolic Formula Representing, use KAN; for Computer Vision, Machine Learning, Text Processing, and Audio Processing Tasks, use MLP.
 ![How to Choose between MLP and KAN.](assert/tldr.png)
 ## Contents
@@ -34,7 +36,7 @@ python train.py \
     --kan_grid_range -4 4 \ # Only for KAN, the domain of spline
 ```
 
-## Citation
+<!-- ## Citation
 
 If you find KANbeFair useful, please cite using this BibTeX:
 ```bibtex
@@ -46,7 +48,7 @@ If you find KANbeFair useful, please cite using this BibTeX:
       archivePrefix={arXiv},
       primaryClass={cs.CV},
       url={https://arxiv.org/abs/2407.}, 
-}
+} -->
 ```
 
 ## Acknowledgement
