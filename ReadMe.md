@@ -1,6 +1,6 @@
 # KANbeFair
 
-*A More Fair and Comprehensive Comparision between KAN and MLP*
+*A More Fair and Comprehensive Comparison between KAN and MLP*
 
 <!-- [![Paper]()] -->
 
