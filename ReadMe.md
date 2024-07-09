@@ -48,8 +48,8 @@ If you find KANbeFair useful, please cite using this BibTeX:
       archivePrefix={arXiv},
       primaryClass={cs.CV},
       url={https://arxiv.org/abs/2407.}, 
-} -->
-```
+} 
+```-->
 
 ## Acknowledgement
 
