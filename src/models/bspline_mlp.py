@@ -46,6 +46,7 @@ class BSpline_MLP(nn.Module):
                 )
             )
         self.layers.append(nn.Linear(args.layers_width[-1], args.output_size))
+        self.batch_norm = args.batch_norm
 
         self.layers_width = layers_width + [args.output_size] 
         self.grid_num = args.kan_bspline_grid
@@ -63,16 +64,26 @@ class BSpline_MLP(nn.Module):
     def layer_parameters(self, din, dout, k, grid_num):
         return dout * (din + 1) + dout * (grid_num + k)
 
+    def batchnorm_flops(self, dout):
+        return dout * 4
+
+    def batchnorm_parameters(self, dout):
+        return 2 * dout
+
     def total_flops(self):
         total_flops = 0
         for i in range(len(self.layers_width) - 1):
             total_flops += self.layer_flops(self.layers_width[i], self.layers_width[i+1], self.k, self.grid_num)
+            if self.batch_norm:
+                total_flops += self.batchnorm_flops(self.layers_width[i+1])
         return total_flops
 
     def total_parameters(self):
         total_parameters = 0
         for i in range(len(self.layers_width) - 1):
             total_parameters += self.layer_parameters(self.layers_width[i], self.layers_width[i+1], self.k, self.grid_num)
+            if self.batch_norm:
+                total_parameters += self.batchnorm_parameters(self.layers_width[i+1])
         return total_parameters
 
 class BSpline_First_MLP(nn.Module):
@@ -95,6 +106,8 @@ class BSpline_First_MLP(nn.Module):
                 self.layers.append(nn.BatchNorm1d(layers_width[i+1]))
 
         self.layers_width = layers_width
+        self.batch_norm = args.batch_norm
+
         self.grid_num = args.kan_bspline_grid
         self.k = args.kan_bspline_order
         self.grid_range = args.kan_grid_range
@@ -111,14 +124,24 @@ class BSpline_First_MLP(nn.Module):
     def layer_parameters(self, din, dout, k, grid_num):
         return dout * (din + 1) + din * (grid_num + k)
 
+    def batchnorm_flops(self, dout):
+        return dout * 4
+
+    def batchnorm_parameters(self, dout):
+        return 2 * dout
+
     def total_flops(self):
         total_flops = 0
         for i in range(len(self.layers_width) - 1):
             total_flops += self.layer_flops(self.layers_width[i], self.layers_width[i+1], self.k, self.grid_num)
+            if self.batch_norm:
+                total_flops += self.batchnorm_flops(self.layers_width[i+1])
         return total_flops
 
     def total_parameters(self):
         total_parameters = 0
         for i in range(len(self.layers_width) - 1):
             total_parameters += self.layer_parameters(self.layers_width[i], self.layers_width[i+1], self.k, self.grid_num)
+            if self.batch_norm:
+                total_parameters += self.batchnorm_parameters(self.layers_width[i+1])
         return total_parameters
