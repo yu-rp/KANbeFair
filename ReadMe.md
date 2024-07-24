@@ -2,7 +2,7 @@
 
 *A More Fair and Comprehensive Comparison between KAN and MLP*
 
-[![Paper](https://arxiv.org/abs/2407.16674)]
+[[Paper](https://arxiv.org/abs/2407.16674)]
 
 TL;DR (1) - For Symbolic Formula Representing, use KAN; for Computer Vision, Machine Learning, Text Processing, and Audio Processing Tasks, use MLP.
 ![How to Choose between MLP and KAN.](assert/tldr.png)
