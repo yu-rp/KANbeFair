@@ -2,7 +2,7 @@
 
 *A More Fair and Comprehensive Comparison between KAN and MLP*
 
-<!-- [![Paper]()] -->
+[![Paper](https://arxiv.org/abs/2407.16674)]
 
 TL;DR (1) - For Symbolic Formula Representing, use KAN; for Computer Vision, Machine Learning, Text Processing, and Audio Processing Tasks, use MLP.
 ![How to Choose between MLP and KAN.](assert/tldr.png)
@@ -82,20 +82,20 @@ flops_MLP = model_MLP.total_flops()
 print(f"MLP: Number of parameters: {num_parameters_MLP:,}; Number of FLOPs: {flops_MLP:,}")
 ```
 
-<!-- ## Citation
+## Citation
 
 If you find KANbeFair useful, please cite using this BibTeX:
 ```bibtex
-@misc{,
-      title={}, 
+@misc{yu2024kanbefair,
+      title={KAN or MLP: A Fairer Comparison}, 
       author={Runpeng Yu and Weihao Yu and Xinchao Wang},
       year={2024},
-      eprint={},
+      eprint={2407.16674},
       archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2407.}, 
-} 
-```-->
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2407.16674}, 
+}
+```
 
 ## Acknowledgement
 
