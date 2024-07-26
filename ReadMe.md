@@ -41,7 +41,7 @@ python train.py \
     --kan_grid_range -4 4 \ # Only for KAN, the domain of spline
 ```
 ## Number of Parameters and FLOPs
-We have two instance methods for each of KAN, MLP and MLP with B-spline activation to calcuate its Number of parameters and FLOPs.
+We have two instance methods for each of KAN, MLP and MLP with B-spline activation to calculate its Number of parameters and FLOPs.
 
 ```python
 import torch
