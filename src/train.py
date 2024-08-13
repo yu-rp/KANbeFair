@@ -209,8 +209,14 @@ def main():
 
     # scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
 
-    best_test_metric = 0
+    if args.loss == "cross_entropy":
+        best_test_metric = 0 
+    elif args.loss == "mse":
+        best_test_metric = 1e10 
+    else:
+        raise NotImplementedError
     corresponding_train_metric = 0
+
     fvctimer = Timer()
     for epoch in range(1, args.epochs + 1):
         if fvctimer.is_paused():
@@ -221,9 +227,19 @@ def main():
         fvctimer.pause()
         train_metric = test(args, model, device, train_loader, logger = logger, name = "train")
         test_metric = test(args, model, device, test_loader, logger = logger, name = "test")
-        if test_metric > best_test_metric:
-            best_test_metric = test_metric
-            corresponding_train_metric = train_metric
+        
+        if args.loss == "cross_entropy":
+            if test_metric > best_test_metric:
+                best_test_metric = test_metric
+                corresponding_train_metric = train_metric
+        elif args.loss == "mse":
+            if test_metric < best_test_metric:
+                best_test_metric = test_metric
+                corresponding_train_metric = train_metric
+        else:
+            raise NotImplementedError
+
+
         # scheduler.step()
 
     total_training_time = fvctimer.seconds()
