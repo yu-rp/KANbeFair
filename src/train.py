@@ -11,6 +11,7 @@ from torchvision import datasets, transforms
 from fvcore.common.timer import Timer
 
 from utils import *
+from models.kan.LBFGS import *
 
 warnings.simplefilter(action='ignore', category=UserWarning)
 
@@ -18,32 +19,70 @@ def train(args, model, device, train_loader, optimizer, epoch, logger, start_ind
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader, start_index):
         data, target = todevice(data, device), todevice(target, device)
-        optimizer.zero_grad()
-        output = model(data)
 
-        if args.loss == "cross_entropy":
-            losses = [F.cross_entropy(output, target)]
-        elif args.loss == "mse":
-            losses = [F.mse_loss(output, target)]
-        else:
-            raise NotImplementedError
-        
-        loss = 0
-        for l in losses:
-            loss = loss + l
-        loss.backward()
+        if args.optimizer in ["adam",'sgd']:
 
-        optimizer.step()
+            optimizer.zero_grad()
+            output = model(data)
+
+            if args.loss == "cross_entropy":
+                losses = [F.cross_entropy(output, target)]
+            elif args.loss == "mse":
+                losses = [F.mse_loss(output, target)]
+            else:
+                raise NotImplementedError
+            
+            loss = 0
+            for l in losses:
+                loss = loss + l
+            loss.backward()
+            optimizer.step()
+
+        elif args.optimizer == "lbfgs":
+            # print("lbfgs")
+
+            def closure():
+                optimizer.zero_grad()
+                output = model(data)
+                if args.loss == "cross_entropy":
+                    losses = [F.cross_entropy(output, target)]
+                elif args.loss == "mse":
+                    losses = [F.mse_loss(output, target)]
+                else:
+                    raise NotImplementedError
+
+                loss = 0
+                for l in losses:
+                    loss = loss + l
+
+                loss.backward()
+                return loss
+
+            optimizer.step(closure)
+
         if batch_idx % args.log_interval == 0:
-            logger_info = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: '.format(
-                epoch, (batch_idx - start_index) * len(data), len(train_loader.dataset),
-                100. * (batch_idx - start_index) / len(train_loader)) + ",".join([str(l.item()) for l in losses])
-            logger.info(logger_info)
-            if args.dry_run:
-                break
+
+            with torch.no_grad():
+                output = model(data)
+                if args.loss == "cross_entropy":
+                    losses = [F.cross_entropy(output, target)]
+                elif args.loss == "mse":
+                    losses = [F.mse_loss(output, target)]
+                else:
+                    raise NotImplementedError
+
+                logger_info = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: '.format(
+                    epoch, (batch_idx - start_index) * len(data), len(train_loader.dataset),
+                    100. * (batch_idx - start_index) / len(train_loader)) + ",".join([str(l.item()) for l in losses])
+                logger.info(logger_info)
+
         if args.save_model_along and (batch_idx + 1) % args.save_model_interval == 0:
             torch.save(model.state_dict(), f"{args.exp_id}/{args.operation}_{batch_idx + 1}.pt")
             logger.info(f"model was saved to {args.exp_id}/{args.operation}_{batch_idx + 1}.pt")
+
+        if args.dry_run:
+            break
+
     return model
 
 def test(args, model, device, test_loader, logger, name):
@@ -114,6 +153,8 @@ def main():
                         help='number of epochs to train (default: 14)')
     parser.add_argument('--lr', type=float, default=0.01,
                         help='learning rate (default: 0.01)')
+    parser.add_argument('--optimizer', type=str, default="adam",
+                        help='supported optimizer: adam, lbfgs')
     # parser.add_argument('--gamma', type=float, default=0.7,
     #                     help='Learning rate step gamma (default: 0.7, 1.0 for fewshot)')
     parser.add_argument('--loss', type=str, default="cross_entropy",
@@ -158,7 +199,7 @@ def main():
 
     args.exp_id = f"../logs/{args.dataset}/{args.model}/"
     args.exp_id = args.exp_id + f"{'_'.join([str(w) for w in args.layers_width])}__{args.batch_norm}__{args.activation_name}"
-    args.exp_id = args.exp_id + f"__{args.batch_size}__{args.epochs}__{args.lr}__{args.seed}"
+    args.exp_id = args.exp_id + f"__{args.batch_size}__{args.epochs}__{args.lr}__{args.seed}__{args.optimizer}"
     os.makedirs(args.exp_id, exist_ok = True)
     ################# id for KAN #################
     if args.model in ["KAN", "KAN_Text"]:
@@ -205,7 +246,21 @@ def main():
     num_parameters, flops = get_model_complexity(model, logger, args)
     model = model.to(device)
 
-    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr)
+    if args.optimizer == "adam":
+        optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr)
+    elif args.optimizer == "sgd":
+        optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr)
+    elif args.optimizer == "lbfgs":
+        optimizer = LBFGS(
+            filter(lambda p: p.requires_grad, model.parameters()), 
+            lr=args.lr, 
+            history_size=10, 
+            line_search_fn="strong_wolfe",
+            tolerance_grad=1e-32, 
+            tolerance_change=1e-32, 
+            tolerance_ys=1e-32)
+    else:
+        raise NotImplementedError
 
     # scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
 
